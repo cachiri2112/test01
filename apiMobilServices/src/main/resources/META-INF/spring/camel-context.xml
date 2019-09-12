@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring" xmlns:cxf="http://camel.apache.org/schema/cxf"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+		http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd">
+
+	<bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
+		<property name="contextName" value="karaf"/>
+	</bean>
+	<bean class="bo.com.tigo.processor.EnableCORSInterceptor" id="EnableCORSInterceptor"/>
+
+	<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor" id="wss4jInInterceptor">
+        <constructor-arg>
+            <map>
+                <entry key="action" value="UsernameToken"/>
+                <entry key="passwordType" value="PasswordText"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+	<bean class="org.apache.camel.spring.spi.BridgePropertyPlaceholderConfigurer" id="properties">
+        <property name="locations">
+            <list>
+                <value>classpath:config.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<cxf:cxfEndpoint name="mobileServiceCxf" address="${info.address}" wsdlURL="wsdl/mobileServices.wsdl"
+		xmlns:cs="http://ws.tigo.com.bo" serviceName="cs:ManagementMobileServicesPort">
+		
+		<cxf:properties>
+			<entry key="ws-security.validate.token" value="false"/>
+		</cxf:properties>
+		<cxf:inInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+			<ref bean="wss4jInInterceptor"/>
+			<ref bean="authenticationInterceptor"/>
+		</cxf:inInterceptors>
+		<cxf:outInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+			<ref bean="EnableCORSInterceptor"/>
+		</cxf:outInterceptors>
+	</cxf:cxfEndpoint>
+
+	<camel:camelContext>
+		<camel:propertyPlaceholder id="placeholder" location="classpath:sqlConfig.properties"></camel:propertyPlaceholder> 
+		<camel:dataFormats>
+			<camel:jaxb id="mobileServiceJAXB" contextPath="bo.com.tigo.ws" prettyPrint="true"/>
+			<camel:json id="json" library="Jackson"/>
+		</camel:dataFormats>
+		<camel:route id="mobile-ws-main-route">
+			<camel:from uri="cxf://bean://mobileServiceCxf?dataFormat=PAYLOAD"/>
+			<camel:unmarshal ref="mobileServiceJAXB"/>
+			<camel:choice>
+				<camel:when>
+					<camel:simple>${headers.operationName} == 'GetAvailableService'</camel:simple>
+					<camel:to uri="direct:getAvailableService"/>
+				</camel:when>
+				<camel:when>
+					<camel:simple>${headers.operationName} == 'EnableDisableAvailableService'</camel:simple>
+					<camel:to uri="direct:enableDisableAvailableService"/>
+				</camel:when>
+			</camel:choice>
+		<!--	<camel:marshal ref="mobileServiceJAXB" />-->
+		</camel:route>
+		<camel:route id="get-available-service">
+			<camel:from uri="direct:getAvailableService"/>
+			<camel:process ref="getAvailableService"/>
+			<camel:to uri="sql:{{sql.get.service}}"></camel:to>
+			<camel:process ref="responseGetAvailableService"/>
+		</camel:route>
+		<camel:route id="enable-disable-service">
+			<camel:from uri="direct:enableDisableAvailableService"/>
+			<camel:process ref="enableDisableAvailableService"/>
+			<camel:process ref="responseEnableDisableAvailableService"/>
+		</camel:route>
+	</camel:camelContext>
+
+	<bean id="getAvailableService" class="bo.com.tigo.processor.RequestGetAvailableServiceProcessor"></bean>
+	<bean id="responseGetAvailableService" class="bo.com.tigo.processor.ResponseGetAvailableServiceProcessor"></bean>
+
+	<bean id="enableDisableAvailableService" class="bo.com.tigo.processor.RequestEnableDisableAvailableServiceProcessor"></bean>
+	<bean id="responseEnableDisableAvailableService" class="bo.com.tigo.processor.ResponseEnableDisableAvailableServiceProcessor"></bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${info.jdbc.driverClass}" />
+		<property name="url" value="${info.jdbc.url}" />
+		<property name="username" value="${info.jdbc.userName}" />
+		<property name="password" value="${info.jdbc.password}" />
+	</bean>
+
+	<bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+</beans>

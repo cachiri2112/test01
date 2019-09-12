@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://ws.tigo.com.bo" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://ws.tigo.com.bo" 
+	xmlns:cs="http://ws.tigo.com.bo">
+	<wsdl:types>
+		<xs:schema>
+			<xs:import namespace="http://ws.tigo.com.bo" schemaLocation="../xsd/mobileServices.xsd"></xs:import>
+		</xs:schema>
+	</wsdl:types>
+
+	<wsdl:message name="GetAvailableService">
+		<wsdl:part name="GetAvailableService" element="cs:GetAvailableService"></wsdl:part>
+	</wsdl:message>
+    
+	<wsdl:message name="responseGetAvailableService">
+		<wsdl:part name="responseGetAvailableService" element="cs:responseGetAvailableService"></wsdl:part>
+	</wsdl:message> 
+
+	<wsdl:message name="EnableDisableAvailableService">
+		<wsdl:part name="EnableDisableAvailableService" element="cs:EnableDisableAvailableService"></wsdl:part>
+	</wsdl:message>
+    
+	<wsdl:message name="responseEnableDisableAvailableService">
+		<wsdl:part name="responseEnableDisableAvailableService" element="cs:responseEnableDisableAvailableService"></wsdl:part>
+	</wsdl:message>
+
+	<wsdl:portType name="ManagementMobileServicesPortType">
+		<wsdl:operation name="GetAvailableService">
+			<wsdl:input message="tns:GetAvailableService" name="GetAvailableService"/>
+			<wsdl:output message="tns:responseGetAvailableService" name="responseGetAvailableService"/>
+		</wsdl:operation>
+		<wsdl:operation name="EnableDisableAvailableService">
+			<wsdl:input message="tns:EnableDisableAvailableService" name="EnableDisableAvailableService"/>
+			<wsdl:output message="tns:responseEnableDisableAvailableService" name="responseEnableDisableAvailableService"/>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:binding name="ManagementMobileServicesBinding" type="tns:ManagementMobileServicesPortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="GetAvailableService">
+			<soap:operation soapAction="GetAvailableService" style="document"/>
+			<wsdl:input name="GetAvailableService">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="responseGetAvailableService">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="EnableDisableAvailableService">
+			<soap:operation soapAction="EnableDisableAvailableService" style="document"/>
+			<wsdl:input name="EnableDisableAvailableService">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="responseEnableDisableAvailableService">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="ManagementMobileServicesPort">
+		<wsdl:port name="ManagementMobileServicesPort" binding="tns:ManagementMobileServicesBinding">
+			<soap:address location="http://127.0.0.1:8181/cxf/ManagementMobileServicesWS"/>
+		
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>

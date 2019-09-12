@@ -1,0 +1,112 @@
+<xs:schema elementFormDefault="qualified" version="1.0" xmlns:tns="http://ws.tigo.com.bo"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ws.tigo.com.bo">
+
+	<!-- Inicio GetAvailableService  -->
+    <xs:element name="GetAvailableService">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="requestHeader" type="tns:RequestHeader" />
+                <xs:element name="requestBody" type="tns:RequesBody" />
+            </xs:sequence>
+        </xs:complexType>
+	</xs:element>
+	
+    <xs:element name="responseGetAvailableService">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="responseHeader" type="tns:ResponseHeader" />
+                <xs:element name="responseBody" type="tns:ResponseBody" />
+            </xs:sequence>
+        </xs:complexType>
+	</xs:element>
+    <!-- Fin GetAvailableService -->
+	
+	<!-- Inicio DisableAvailableService  -->
+    <xs:element name="EnableDisableAvailableService">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="requestHeader" type="tns:RequestHeader" />
+                <xs:element name="requestBody" type="tns:RequestBody" />
+            </xs:sequence>
+        </xs:complexType>
+	</xs:element>
+
+    <xs:element name="responseEnableDisableAvailableService">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="responseHeader" type="tns:ResponseHeader" />
+                <xs:element name="responseBody" type="tns:ResponseBody" />
+            </xs:sequence>
+        </xs:complexType>
+	</xs:element>
+    <!-- Fin EnableDisableAvailableService -->
+
+    <!-- Inicio request  -->
+    <xs:complexType name="RequestHeader">
+		<xs:sequence>
+			<xs:element name="transactionID" type="xs:string"/>
+			<xs:element name="correlationID" type="xs:string"/>
+			<xs:element name="country">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="BOL"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="RequestBody">
+		<xs:sequence>
+			<xs:element name="consumer" type="xs:string"/>
+			<xs:element name="msisdn" type="xs:string"/>
+			<xs:element name="serviceCode" type="xs:string"/>
+			<xs:element name="operation">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="ENABLE"/>
+						<xs:enumeration value="DISABLE"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="RequesBody">
+		<xs:sequence>
+			<xs:element name="consumer" type="xs:string"/>
+			<xs:element name="msisdn" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+    <!-- Fin request -->
+
+    <!-- Inicio response  -->
+    <xs:complexType name="ResponseHeader">
+		<xs:sequence>
+			<xs:element name="transactionID" type="xs:string"/>
+			<xs:element name="status" type="xs:string"/>
+			<xs:element name="code" type="xs:string"/>
+			<xs:element name="description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="ResponseBody">
+		<xs:sequence>
+			<xs:element name="consumer" type="xs:string"/>
+			<xs:element name="msisdn" type="xs:string"/>
+			<xs:element name="serviceType" type="tns:ServiceType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ServiceType">
+		<xs:sequence>
+			<xs:element name="serviceId" type="xs:string"/>
+			<xs:element name="serviceDescription" type="xs:string"/>
+			<xs:element name="serviceName" type="xs:string"/>
+			<xs:element name="serviceCurrency" type="xs:string"/>
+			<xs:element name="serviceCost" type="xs:string"/>
+			<xs:element name="serviceStatus" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+    <!-- Fin response -->
+</xs:schema>
